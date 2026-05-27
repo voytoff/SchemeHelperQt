@@ -9,7 +9,7 @@
 #define SCHEMEHELPER_EXPORT Q_DECL_IMPORT
 #endif
 
-enum ColorScheme: int {
+enum ColorScheme : int {
   Light = 1,
   Dark = 2,
 };

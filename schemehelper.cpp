@@ -2,19 +2,20 @@
 
 #include <QFile>
 #include <QGuiApplication>
-#include <QStyleHints>
-#include <QRegularExpression>
-#include <QSvgRenderer>
 #include <QPainter>
+#include <QRegularExpression>
+#include <QStyleHints>
+#include <QSvgRenderer>
 
-#include <windows.h>
 #include <dwmapi.h>
+#include <windows.h>
 
 #pragma comment(lib, "dwmapi.lib") // MSVC Only
 
-SchemeHelper::SchemeHelper(QMainWindow *wnd, const QString windowIcon) :
-  wnd(wnd),
-  windowIcon(windowIcon) {}
+SchemeHelper::SchemeHelper(QMainWindow *wnd, const QString windowIcon)
+  : wnd(wnd)
+  , windowIcon(windowIcon)
+{}
 
 QAction *SchemeHelper::create(const QString &text, const QString iconPath, QKeySequence shortcut) {
   auto *action = new Action(wnd, text, iconPath, shortcut);
@@ -25,13 +26,17 @@ QAction *SchemeHelper::create(const QString &text, const QString iconPath, QKeyS
 
 QAction *SchemeHelper::createLightAction(const QString &text, const QString iconPath, QKeySequence shortcut) {
   lightAction = create(text, iconPath, shortcut);
-  QMainWindow::connect(lightAction, &QAction::triggered, wnd, [=]() { applayColorScheme(ColorScheme::Light); });
+  QMainWindow::connect(lightAction, &QAction::triggered, wnd, [=]() {
+    applayColorScheme(ColorScheme::Light);
+  });
   return lightAction;
 }
 
 QAction *SchemeHelper::createDarkAction(const QString &text, const QString iconPath, QKeySequence shortcut) {
   darkAction = create(text, iconPath, shortcut);
-  QMainWindow::connect(darkAction, &QAction::triggered, wnd, [=]() { applayColorScheme(ColorScheme::Dark); });
+  QMainWindow::connect(darkAction, &QAction::triggered, wnd, [=]() {
+    applayColorScheme(ColorScheme::Dark);
+  });
   return darkAction;
 }
 
@@ -69,8 +74,23 @@ QIcon SchemeHelper::iconFromSvgString(const QString &svgString, int width, int h
 }
 
 void SchemeHelper::setDarkTitleBar(bool dark) {
-  BOOL value = dark ? TRUE : FALSE;
-  DwmSetWindowAttribute(reinterpret_cast<HWND>(wnd->winId()), 20, &value, sizeof(value));
+  OSVERSIONINFOEX osvi;
+  ZeroMemory(&osvi, sizeof(osvi));
+  osvi.dwOSVersionInfoSize = sizeof(osvi);
+  osvi.dwMajorVersion = 10;
+  osvi.dwBuildNumber = 22000; // Build 22000 is Windows 11
+
+  ULONGLONG conditionMask = 0;
+  VER_SET_CONDITION(conditionMask, VER_MAJORVERSION, VER_GREATER_EQUAL);
+  VER_SET_CONDITION(conditionMask, VER_BUILDNUMBER, VER_GREATER_EQUAL);
+
+  if (VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_BUILDNUMBER, conditionMask)) {
+    // Windows 11 or newer, safe to use DWMWA_WINDOW_CORNER_PREFERENCE
+    BOOL preference = dark ? TRUE : FALSE;
+    DwmSetWindowAttribute(reinterpret_cast<HWND>(wnd->winId()), 20, &preference, sizeof(preference));
+  } else {
+    qDebug() << "Windows 10 - Handle fallback";
+  }
 }
 
 void SchemeHelper::setIcons() {
@@ -81,15 +101,11 @@ void SchemeHelper::setIcons() {
 }
 
 void SchemeHelper::applayColorScheme(ColorScheme scheme) {
-  QGuiApplication::styleHints()->setColorScheme((Qt::ColorScheme)scheme);
+  QGuiApplication::styleHints()->setColorScheme((Qt::ColorScheme) scheme);
   setIcons();
   bool dark = scheme == ColorScheme::Dark;
   lightAction->setVisible(dark);
   darkAction->setVisible(!dark);
-
 }
 
-void SchemeHelper::applayColorDark()
-{
-
-}
+void SchemeHelper::applayColorDark() {}
