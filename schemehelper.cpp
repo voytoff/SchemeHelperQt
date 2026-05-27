@@ -10,6 +10,9 @@
 #include <dwmapi.h>
 #include <windows.h>
 
+#ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
+#define DWMWA_USE_IMMERSIVE_DARK_MODE 20
+#endif
 #pragma comment(lib, "dwmapi.lib") // MSVC Only
 
 SchemeHelper::SchemeHelper(QMainWindow *wnd, const QString windowIcon)
@@ -84,12 +87,14 @@ void SchemeHelper::setDarkTitleBar(bool dark) {
   VER_SET_CONDITION(conditionMask, VER_MAJORVERSION, VER_GREATER_EQUAL);
   VER_SET_CONDITION(conditionMask, VER_BUILDNUMBER, VER_GREATER_EQUAL);
 
+  auto hwnd = reinterpret_cast<HWND>(wnd->winId());
   if (VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_BUILDNUMBER, conditionMask)) {
-    // Windows 11 or newer, safe to use DWMWA_WINDOW_CORNER_PREFERENCE
     BOOL preference = dark ? TRUE : FALSE;
-    DwmSetWindowAttribute(reinterpret_cast<HWND>(wnd->winId()), 20, &preference, sizeof(preference));
+    DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &preference, sizeof(preference));
   } else {
     qDebug() << "Windows 10 - Handle fallback";
+    ShowWindow(hwnd, SW_MINIMIZE);
+    ShowWindow(hwnd, SW_RESTORE);
   }
 }
 
@@ -100,12 +105,11 @@ void SchemeHelper::setIcons() {
   }
 }
 
-void SchemeHelper::applayColorScheme(ColorScheme scheme) {
+void SchemeHelper::applayColorScheme(ColorScheme scheme, bool initialize) {
   QGuiApplication::styleHints()->setColorScheme((Qt::ColorScheme) scheme);
   setIcons();
   bool dark = scheme == ColorScheme::Dark;
+  if (!initialize) setDarkTitleBar(dark);
   lightAction->setVisible(dark);
   darkAction->setVisible(!dark);
 }
-
-void SchemeHelper::applayColorDark() {}
