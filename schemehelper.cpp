@@ -7,13 +7,15 @@
 #include <QStyleHints>
 #include <QSvgRenderer>
 
+#if defined(Q_OS_WIN)
 #include <dwmapi.h>
 #include <windows.h>
+#pragma comment(lib, "dwmapi.lib") // MSVC Only
+#endif
 
 #ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
 #define DWMWA_USE_IMMERSIVE_DARK_MODE 20
 #endif
-#pragma comment(lib, "dwmapi.lib") // MSVC Only
 
 SchemeHelper::SchemeHelper(QMainWindow *wnd, const QString windowIcon)
   : wnd(wnd)
@@ -76,6 +78,7 @@ QIcon SchemeHelper::iconFromSvgString(const QString &svgString, int width, int h
   return QIcon(pixmap);
 }
 
+#if defined(Q_OS_WIN)
 void SchemeHelper::setDarkTitleBar(bool dark) {
   OSVERSIONINFOEX osvi;
   ZeroMemory(&osvi, sizeof(osvi));
@@ -97,6 +100,7 @@ void SchemeHelper::setDarkTitleBar(bool dark) {
     ShowWindow(hwnd, SW_RESTORE);
   }
 }
+#endif
 
 void SchemeHelper::setIcons() {
   wnd->setWindowIcon(getIcon(windowIcon));
@@ -109,7 +113,9 @@ void SchemeHelper::applayColorScheme(ColorScheme scheme, bool initialize) {
   QGuiApplication::styleHints()->setColorScheme((Qt::ColorScheme) scheme);
   setIcons();
   bool dark = scheme == ColorScheme::Dark;
+#if defined(Q_OS_WIN)
   if (!initialize) setDarkTitleBar(dark);
+#endif
   lightAction->setVisible(dark);
   darkAction->setVisible(!dark);
 }

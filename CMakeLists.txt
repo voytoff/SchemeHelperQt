@@ -25,5 +25,10 @@ target_link_libraries(SchemeHelper PRIVATE
   Qt${QT_VERSION_MAJOR}::Svg
   dwmapi # DwmSetWindowAttribute
 )
+if(WIN32)
+  target_link_libraries(SchemeHelper PRIVATE
+    dwmapi # DwmSetWindowAttribute
+  )
+endif()
 
 target_compile_definitions(SchemeHelper PRIVATE SCHEMEHELPER_LIBRARY)
