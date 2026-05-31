@@ -23,7 +23,6 @@ target_link_libraries(SchemeHelper PRIVATE
   Qt${QT_VERSION_MAJOR}::Quick
   Qt${QT_VERSION_MAJOR}::Widgets
   Qt${QT_VERSION_MAJOR}::Svg
-  dwmapi # DwmSetWindowAttribute
 )
 if(WIN32)
   target_link_libraries(SchemeHelper PRIVATE

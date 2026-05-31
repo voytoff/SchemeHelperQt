@@ -11,9 +11,15 @@ class SCHEMEHELPER_EXPORT SchemeHelper
 public:
   SchemeHelper(QMainWindow *wnd, const QString windowIcon);
 
-  QAction *create(const QString &text, const QString iconPath = nullptr, QKeySequence shortcut = QKeySequence());
-  QAction *createLightAction(const QString &text, const QString iconPath = nullptr, QKeySequence shortcut = QKeySequence());
-  QAction *createDarkAction(const QString &text, const QString iconPath = nullptr, QKeySequence shortcut = QKeySequence());
+  QAction *create(const QString &text,
+                  const QString iconPath = nullptr,
+                  QKeySequence shortcut = QKeySequence());
+  QAction *createLightAction(const QString &text,
+                             const QString iconPath = nullptr,
+                             QKeySequence shortcut = QKeySequence());
+  QAction *createDarkAction(const QString &text,
+                            const QString iconPath = nullptr,
+                            QKeySequence shortcut = QKeySequence());
   void setIcons();
   void applayColorScheme(ColorScheme scheme, bool initialize = false);
 
