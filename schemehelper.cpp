@@ -123,5 +123,5 @@ void SchemeHelper::applayColorScheme(ColorScheme scheme, bool initialize) {
 void SchemeHelper::setupToolbar(QToolBar *toolbar) {
   toolbar->setIconSize(QSize(16, 16));
   toolbar->setToolButtonStyle(Qt::ToolButtonIconOnly);
-  toolbar->setStyleSheet("QToolButton {max-width:16px;max-height:16px;min-width:16px;min-height:16px;padding:1px;margin:1px;}");
+  //toolbar->setStyleSheet("QToolButton {max-width:16px;max-height:16px;min-width:16px;min-height:16px;padding:1px;margin:1px;}");
 }
